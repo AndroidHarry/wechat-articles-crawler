@@ -1,3 +1,6 @@
+const hlog = require("./hlog");
+hlog.logger.debug("DEBUG TEST");
+
 const Koa = require('Koa');
 const Router = require('koa-router');
 const fs = require('fs');
@@ -5,7 +8,7 @@ const ip = require('ip').address();
 
 const app = new Koa();
 const moment = require('moment');
-var server = require('http').createServer(app.callback());
+var server = require('http').createServer(app.callback());	//	TBD
 var io = require('socket.io')(server);
 
 const router = new Router();
@@ -15,6 +18,7 @@ app.use(async function (ctx, next) {
     try {
         await next();
     } catch (e) {
+        hlog.logger.debug('error' + e.toString() + '$' + ctx.toString());
         console.log('error', e, ctx);
         app.emit('error', e, ctx);
     }
@@ -29,7 +33,7 @@ router.get('/', async (ctx, next) => {
 })
 
 
-app.use(router.routes());
+app.use(router.routes());	//	TBD
 
 server.listen(9000);
 require("openurl").open("http://localhost:9000");
@@ -61,6 +65,7 @@ wechatIo.on('connection', function (socket) {
 
     socket.on('noData', (crawData) => {
         console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
+        hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
 
         index++;
         if (articles[index]) {
@@ -77,12 +82,13 @@ function injectJquery(body) {
     return body.replace(/<\/head>/g, '<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><script src="https://cdn.bootcss.com/socket.io/2.0.4/socket.io.js"></script></head>')
 }
 
+hlog.logger.debug('ip: ' + ip); //  harry
 var injectJsFile = fs.readFileSync('./injectJs.js', 'utf-8').replace('{$IP}', ip);
 var articleInjectJsFile = fs.readFileSync('./articleInjectJs.js', 'utf-8').replace('{$IP}', ip);
 var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
 var articleInjectJs = `<script id="injectJs" type="text/javascript">${articleInjectJsFile}</script>`;
 var fakeImg = fs.readFileSync('./fake.png');
-const maxLength = 3000;
+const maxLength = 10;   //  3000;
 module.exports = {
     summary: 'wechat articles crawler',
     *beforeSendRequest(requestDetail) {
@@ -101,15 +107,25 @@ module.exports = {
     *beforeSendResponse(requestDetail, responseDetail) {
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 && requestDetail.requestOptions.method === 'GET') {
-            console.log('get  profile_ext', responseDetail.response.header['Content-Type']);
+            console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  application/json; charset=UTF-8
+
+            let contentType = responseDetail.response.header['Content-Type'] || '';
+            contentType = 'contentType: ' + contentType;
+            hlog.loggerBeforeRes.debug('history_list ' + contentType + ';' + requestDetail.url + ';');
 
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
             let newAdd = [];
 
+            hlog.loggerBeforeRes.debug('history_list begin responseDetail.response.body');
+            hlog.loggerBeforeRes.debug(body);
+            hlog.loggerBeforeRes.debug('history_list end responseDetail.response.body');
+
             let can_msg_continue = true;
 
             if (responseDetail.response.header['Content-Type'].indexOf('text/html') !== -1) {
+
+                hlog.loggerBeforeRes.debug('history_list_1');
 
                 let msgReg = /var msgList = \'(.*?)\';/;
 
@@ -141,6 +157,8 @@ module.exports = {
                 newResponse.header = header;
 
             } else {
+                hlog.loggerBeforeRes.debug('history_list_2');
+
                 can_msg_continue = body.indexOf('can_msg_continue":1') !== -1;
 
                 let regList = /general_msg_list":"(.*)","next_offset/;
@@ -176,6 +194,7 @@ module.exports = {
                 articles = articles.concat(newAdd);
 
             console.log('获取文章的列表总数articles.length ', articles.length);
+            hlog.loggerBeforeRes.debug('history_list get articles.length=' + articles.length);
 
             if (!can_msg_continue || articles.length > maxLength) {
                 fetchListEnd_StartArticle();
@@ -188,8 +207,16 @@ module.exports = {
         } else if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/getappmsgext?') !== -1 && requestDetail.requestOptions.method == 'POST') {   // 获取评论数，点赞数
 
         } else if (requestDetail.url.indexOf('mp.weixin.qq.com/s?') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 文章内容
+            let contentType = responseDetail.response.header['Content-Type'] || '';
+            contentType = 'contentType: ' + contentType;
+            hlog.loggerBeforeRes.debug('article_content ' + contentType + ';' + requestDetail.url + ';');
+
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
+
+            hlog.loggerBeforeRes.debug('article_content begin responseDetail.response.body');
+            hlog.loggerBeforeRes.debug(body);
+            hlog.loggerBeforeRes.debug('article_content end responseDetail.response.body');
 
             newResponse.body = injectJquery(body).replace(/\s<\/body>\s/g, articleInjectJs + '</body>');
 
@@ -211,6 +238,8 @@ module.exports = {
 };
 
 function fetchListEnd_StartArticle() {
+    hlog.loggerBeforeRes.debug('history_list final get articles.length=' + articles.length);
+
     console.log('最终获取文章的列表总数： ', articles.length);
     wechatIo.emit('url', {url: articles[0].content_url, index: 0, total: articles.length});
 }

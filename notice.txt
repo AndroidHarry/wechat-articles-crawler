@@ -1,0 +1,38 @@
+
+/wechat (namespace)
+	crawler (msg)
+		client (articleInjectJs.js) -> server, 
+		connect, interval=1s, 10s 超时
+		{readNum,likeNum,postUser,postDate,activityName,js_share_source}
+	success (msg)
+		server -> client (articleInjectJs.js)
+		clearInterval, clearTimeout
+		{}
+	newData (msg)
+		wechatIo -> resultIo (* result.html *)
+		console.log
+		{otitle,ourl,author,readNum,likeNum,postUser,postDate,activityName,js_share_source}
+		add row data to tbody
+	noData (msg)
+		client (articleInjectJs.js) -> server, 
+		connect, timeout=10s,
+		{url,title}
+	url (msg)
+		server -> client (articleInjectJs.js)
+		{url, index, total}
+	end (msg)
+		server -> client (articleInjectJs.js)
+		{}
+
+/result (namespace)
+
+
+injectJs.js
+	插入 url 包含 mp.weixin.qq.com/mp/profile_ext? 的 历史文章列表 页
+	历史文章列表 页 滚到底后，服务器向客户端发送 url msg, 
+	客户端 清除 scrollKey 定时器, 打开第一篇文章的 url
+
+
+articleInjectJs.js
+	插入 url 包含 mp.weixin.qq.com/s? 的 文章内容 页
+	文章内容 页 打开后(connect), 定时 1s, 客户端向服务器发送 crawler msg, 
