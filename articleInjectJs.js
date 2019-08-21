@@ -25,7 +25,7 @@ socket.on('connect', function () {
     key = setInterval(function () {
         var readNum = $('#readNum3').text().trim();
 
-        if (!readNum) return;
+        // if (!readNum) return;    //  harry, 取不到值，为了程序继续跑下去，忽略
 
         var likeNum = $('#likeNum3').text().trim();
         var postUser = $('#post-user').text().trim();

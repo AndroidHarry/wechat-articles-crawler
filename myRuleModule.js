@@ -53,7 +53,9 @@ wechatIo.on('connection', function (socket) {
         socket.emit('success');
 
         resultIo.emit('newData', newData);
-        hlog.logger.debug('newData: ' + newData); //  harry
+        //  harry
+        hlog.logger.debug('newData: ' + JSON.stringify(newData));
+        console.warn('newData');
 
         index++;
         if (articles[index]) {
@@ -65,9 +67,11 @@ wechatIo.on('connection', function (socket) {
 
 
     socket.on('noData', (crawData) => {
-        console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
-        hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
-
+        if (articles[index].content_url) {  //  harry, content_url 可能不存在
+            console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
+            hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
+        }
+        
         index++;
         if (articles[index]) {
             socket.emit('url', {url: articles[index].content_url, index: index, total: articles.length});
@@ -215,9 +219,9 @@ module.exports = {
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
 
-            hlog.loggerBeforeRes.debug('article_content begin responseDetail.response.body');
-            hlog.loggerBeforeRes.debug(body);
-            hlog.loggerBeforeRes.debug('article_content end responseDetail.response.body');
+            //hlog.loggerBeforeRes.debug('article_content begin responseDetail.response.body');
+            //hlog.loggerBeforeRes.debug(body);
+            //hlog.loggerBeforeRes.debug('article_content end responseDetail.response.body');
 
             newResponse.body = injectJquery(body).replace(/\s<\/body>\s/g, articleInjectJs + '</body>');
 
