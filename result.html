@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="cn">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -68,11 +68,7 @@
         return ret;
     }
 
-    var index = 1;
-    var tmp = $('#tmp').html();
-
-    var socket = io('/result').connect(window.location.origin);
-    socket.on('newData', function (data) {
+    function addNewData(data) {
         console.log(index, data);
         data.index = index;
         data.title = decodeHtml(data.otitle);
@@ -82,7 +78,24 @@
         $.tmpl(tmp, data).appendTo("tbody");
         document.title = index + '爬取微信公众号';
         index++;
-    });
+    }
+
+    var index = 1;
+    var tmp = $('#tmp').html();
+
+    var socket = io('/result').connect(window.location.origin);
+    //socket.on('newData', function (data) {
+    //    console.log(index, data);
+    //    data.index = index;
+    //    data.title = decodeHtml(data.otitle);
+
+    //    data.same = allCN(data.title) === allCN(data.activityName);
+    //    if (data.js_share_source) data.remark = '分享';
+    //    $.tmpl(tmp, data).appendTo("tbody");
+    //    document.title = index + '爬取微信公众号';
+    //    index++;
+    //});
+    socket.on('newData', addNewData);
 
 </script>
 </body>

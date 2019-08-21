@@ -36,3 +36,13 @@ injectJs.js
 articleInjectJs.js
 	插入 url 包含 mp.weixin.qq.com/s? 的 文章内容 页
 	文章内容 页 打开后(connect), 定时 1s, 客户端向服务器发送 crawler msg, 
+
+
+经调试发现，公众号的全部文章列表可以是固定的网页链接，可以直接在微信浏览器里打开，如 
+人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MjAxNDM4MA==&scene=124
+上海证券报: https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124
+------------------
+对应的 json 格式如下
+人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MjAxNDM4MA==&f=json&offset=0&count=20&is_ok=1&scene=126
+上海证券报: https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126
+返回的 json 包含最新 10 次公众号的群发文章，一次可以是单图文也可以是多图文。

@@ -53,6 +53,7 @@ wechatIo.on('connection', function (socket) {
         socket.emit('success');
 
         resultIo.emit('newData', newData);
+        hlog.logger.debug('newData: ' + newData); //  harry
 
         index++;
         if (articles[index]) {
@@ -229,8 +230,18 @@ module.exports = {
             newResponse.header = header;
 
             return {response: newResponse};
-        }
+        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 文章内容
+            let contentType = responseDetail.response.header['Content-Type'] || '';
+            contentType = 'contentType: ' + contentType;
+            hlog.loggerBeforeRes.debug('qq.com, ' + contentType + ';' + requestDetail.url + ';');
 
+            const newResponse = responseDetail.response;
+            let body = responseDetail.response.body.toString();
+
+            hlog.loggerBeforeRes.debug('qq_com begin responseDetail.response.body');
+            hlog.loggerBeforeRes.debug(body);
+            hlog.loggerBeforeRes.debug('qq_com end responseDetail.response.body');
+        }
     },
     *beforeDealHttpsRequest(requestDetail) {
         return true;
