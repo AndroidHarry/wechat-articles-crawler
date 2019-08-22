@@ -32,6 +32,10 @@ router.get('/', async (ctx, next) => {
     ctx.body = fs.readFileSync('./result.html', 'utf-8');
 })
 
+router.get('/config_mp', async (ctx, next) => {
+    ctx.body = fs.readFileSync('./config.html', 'utf-8');
+})
+
 
 app.use(router.routes());	//	TBD
 
@@ -106,6 +110,10 @@ module.exports = {
         }
     },
     *beforeSendResponse(requestDetail, responseDetail) {
+        // 配置页面，起始页
+        if (requestDetail.url.indexOf('/config_mp') !== -1 && requestDetail.requestOptions.method === 'GET') {
+        }
+
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 && requestDetail.requestOptions.method === 'GET') {
             console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  text/html or application/json; charset=UTF-8
@@ -231,7 +239,7 @@ module.exports = {
             newResponse.header = header;
 
             return {response: newResponse};
-        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 文章内容
+        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 其他来自 weixin 的链接
             let contentType = responseDetail.response.header['Content-Type'] || '';
             contentType = 'contentType: ' + contentType;
             hlog.loggerBeforeRes.debug('qq.com, ' + contentType + ';' + requestDetail.url + ';');

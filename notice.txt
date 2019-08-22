@@ -46,3 +46,22 @@ articleInjectJs.js
 人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MjAxNDM4MA==&f=json&offset=0&count=20&is_ok=1&scene=126
 上海证券报: https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126
 返回的 json 包含最新 10 次公众号的群发文章，一次可以是单图文也可以是多图文。
+
+
+
+思路是
+1、用户在手机上打开 http://{$IP}:{$PORT}/config_mp 链接 (对应的是本地的 config.html), 
+   该 response 页面注入 profileInjectJs.js, 与 nodejs 服务端建立 socket 链接。 
+   服务端 wechatIo.emit 'client_jump_url'; 客户端收到后 window.location = data.url; 
+   data.url 如 https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MjAxNDM4MA==&f=json&offset=0&count=20&is_ok=1&scene=126
+   返回文章列表的 json, 开始抓取公众号。
+2、服务端在 *beforeSendResponse(requestDetail, responseDetail) 时, 
+   对于返回的 url 形如 'mp.weixin.qq.com/mp/profile_ext?' 并且 response.header['Content-Type'] 形如 application/json; charset=UTF-8
+   对于该返回 注入 profileInjectJs.js, 与 nodejs 服务端建立 socket 链接。 
+   服务端解析得到的 json, 并且处理: 写日志, post 到外部服务接口, 显示到 http://{$IP}:{$PORT}/
+   服务端 wechatIo.emit 'client_jump_url'; 客户端收到后 window.location = data.url; 
+3、遍历所有的公众号后, 可以结束, 或者如下
+   服务端 wechatIo.emit 'client_jump_url'; 客户端收到后 window.location = data.url; 
+   跳转链接是 http://{$IP}:{$PORT}/config_mp 。
+
+注: {$PORT}=9000
