@@ -112,6 +112,8 @@ module.exports = {
     *beforeSendResponse(requestDetail, responseDetail) {
         // 配置页面，起始页
         if (requestDetail.url.indexOf('/config_mp') !== -1 && requestDetail.requestOptions.method === 'GET') {
+            let h = JSON.stringify(requestDetail.requestOptions.headers);
+            hlog.loggerBeforeRes.debug('config_mp_headers: ' + h);
         }
 
         // 历史文章列表
