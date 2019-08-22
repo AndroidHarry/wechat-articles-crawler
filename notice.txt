@@ -60,6 +60,7 @@ articleInjectJs.js
    对于该返回 注入 profileInjectJs.js, 与 nodejs 服务端建立 socket 链接。 
    服务端解析得到的 json, 并且处理: 写日志, post 到外部服务接口, 显示到 http://{$IP}:{$PORT}/
    服务端 wechatIo.emit 'client_jump_url'; 客户端收到后 window.location = data.url; 
+   ** 注意在 *beforeSendRequest(requestDetail.requestOptions.headers) 里 Referer 字段的设置(不要出现 http://{$IP}:{$PORT}/config_mp)
 3、遍历所有的公众号后, 可以结束, 或者如下
    服务端 wechatIo.emit 'client_jump_url'; 客户端收到后 window.location = data.url; 
    跳转链接是 http://{$IP}:{$PORT}/config_mp 。
