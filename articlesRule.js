@@ -32,6 +32,10 @@ router.get('/', async (ctx, next) => {
     ctx.body = fs.readFileSync('./result.html', 'utf-8');
 })
 
+router.get('/config_mp', async (ctx, next) => {
+    ctx.body = fs.readFileSync('./config.html', 'utf-8');
+})
+
 
 app.use(router.routes());	//	TBD
 
@@ -53,9 +57,7 @@ wechatIo.on('connection', function (socket) {
         socket.emit('success');
 
         resultIo.emit('newData', newData);
-        //  harry
-        hlog.logger.debug('newData: ' + JSON.stringify(newData));
-        console.warn('newData');
+        hlog.logger.debug('newData: ' + newData); //  harry
 
         index++;
         if (articles[index]) {
@@ -67,11 +69,9 @@ wechatIo.on('connection', function (socket) {
 
 
     socket.on('noData', (crawData) => {
-        if (articles[index].content_url) {  //  harry, content_url 可能不存在
-            console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
-            hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
-        }
-        
+        console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
+        hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
+
         index++;
         if (articles[index]) {
             socket.emit('url', {url: articles[index].content_url, index: index, total: articles.length});
@@ -110,6 +110,10 @@ module.exports = {
         }
     },
     *beforeSendResponse(requestDetail, responseDetail) {
+        // 配置页面，起始页
+        if (requestDetail.url.indexOf('/config_mp') !== -1 && requestDetail.requestOptions.method === 'GET') {
+        }
+
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 && requestDetail.requestOptions.method === 'GET') {
             console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  text/html or application/json; charset=UTF-8
@@ -220,9 +224,9 @@ module.exports = {
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
 
-            //hlog.loggerBeforeRes.debug('article_content begin responseDetail.response.body');
-            //hlog.loggerBeforeRes.debug(body);
-            //hlog.loggerBeforeRes.debug('article_content end responseDetail.response.body');
+            hlog.loggerBeforeRes.debug('article_content begin responseDetail.response.body');
+            hlog.loggerBeforeRes.debug(body);
+            hlog.loggerBeforeRes.debug('article_content end responseDetail.response.body');
 
             newResponse.body = injectJquery(body).replace(/\s<\/body>\s/g, articleInjectJs + '</body>');
 
@@ -235,7 +239,7 @@ module.exports = {
             newResponse.header = header;
 
             return {response: newResponse};
-        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 文章内容
+        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 其他来自 weixin 的链接
             let contentType = responseDetail.response.header['Content-Type'] || '';
             contentType = 'contentType: ' + contentType;
             hlog.loggerBeforeRes.debug('qq.com, ' + contentType + ';' + requestDetail.url + ';');
