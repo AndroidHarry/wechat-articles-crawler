@@ -55,7 +55,6 @@ wechatIo.on('connection', function (socket) {
         resultIo.emit('newData', newData);
         //  harry
         hlog.logger.debug('newData: ' + JSON.stringify(newData));
-        console.warn('newData');
 
         index++;
         if (articles[index]) {
@@ -235,7 +234,7 @@ module.exports = {
             newResponse.header = header;
 
             return {response: newResponse};
-        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 文章内容
+        } else if (requestDetail.url.indexOf('mp.weixin.qq.com') !== -1 && requestDetail.requestOptions.method == 'GET') {  // 其他来自 weixin 的链接
             let contentType = responseDetail.response.header['Content-Type'] || '';
             contentType = 'contentType: ' + contentType;
             hlog.loggerBeforeRes.debug('qq.com, ' + contentType + ';' + requestDetail.url + ';');
