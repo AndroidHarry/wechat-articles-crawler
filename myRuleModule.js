@@ -19,7 +19,7 @@ app.use(async function (ctx, next) {
         await next();
     } catch (e) {
         hlog.logger.debug('error' + e.toString() + '$' + ctx.toString());
-        console.log('error', e, ctx);
+        // console.log('error', e, ctx);
         app.emit('error', e, ctx);
     }
 });
@@ -67,8 +67,8 @@ wechatIo.on('connection', function (socket) {
 
     socket.on('noData', (crawData) => {
         if (articles[index].content_url) {  //  harry, content_url 可能不存在
-            console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
-            hlog.logger.debug(' 超时没有爬取到？ url: ' + articles[index].content_url);
+            //  console.warn(' 超时没有爬取到？ url: ', articles[index].content_url);
+            hlog.logger.warn(' 超时没有爬取到？ url: ' + articles[index].content_url);
         }
         
         index++;
@@ -111,7 +111,7 @@ module.exports = {
     *beforeSendResponse(requestDetail, responseDetail) {
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 && requestDetail.requestOptions.method === 'GET') {
-            console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  text/html or application/json; charset=UTF-8
+            // console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  text/html or application/json; charset=UTF-8
 
             let contentType = responseDetail.response.header['Content-Type'] || '';
             contentType = 'contentType: ' + contentType;
@@ -198,7 +198,7 @@ module.exports = {
             if (articles.length <= maxLength)
                 articles = articles.concat(newAdd);
 
-            console.log('获取文章的列表总数articles.length ', articles.length);
+            // console.log('获取文章的列表总数articles.length ', articles.length);
             hlog.loggerBeforeRes.debug('history_list get articles.length=' + articles.length);
 
             if (!can_msg_continue || articles.length > maxLength) {
@@ -254,8 +254,8 @@ module.exports = {
 
 function fetchListEnd_StartArticle() {
     hlog.loggerBeforeRes.debug('history_list final get articles.length=' + articles.length);
+    // console.log('最终获取文章的列表总数： ', articles.length);
 
-    console.log('最终获取文章的列表总数： ', articles.length);
     wechatIo.emit('url', {url: articles[0].content_url, index: 0, total: articles.length});
 }
 
