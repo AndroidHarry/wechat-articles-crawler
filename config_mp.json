@@ -1,0 +1,15 @@
+{
+  "heart_sec": 60,
+  "mp": [
+    {
+      "name": "人民日报",
+      "biz": "MjM5MjAxNDM4MA==",
+      "interval_min": 5
+    },
+    {
+      "name": "上海证券报",
+      "biz": "MjM5MDIwNDEyMg==",
+      "interval_min": 500
+    }
+  ]
+}
