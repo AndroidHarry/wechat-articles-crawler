@@ -55,7 +55,7 @@ function nextCrawlerTask(url) {
     }
 
     if (url.indexOf('/config_mp') !== -1) {
-        return { index: 0, url: urlByBiz(config_mp.mp[0].biz) };
+        return { index: 0, url: urlByBiz(config_mp.mp[0].biz), biz: config_mp.mp[0].biz, oldBiz: '' };
     } else {
         let bFound = false;
         let i = 0;
@@ -69,9 +69,14 @@ function nextCrawlerTask(url) {
         }
         if (bFound) {
             if (i < config_mp.mp.length) {
-                return { index: i, url: urlByBiz(config_mp.mp[i].biz) };
+                return {
+                    index: i,
+                    url: urlByBiz(config_mp.mp[i].biz),
+                    biz: config_mp.mp[i].biz, 
+                    oldBiz: config_mp.mp[i-1].biz
+                };
             } else {
-                return { index: -1, url: 'http://' + ip + '/config_mp' };
+                return { index: -1, url: 'http://' + ip + '/config_mp', biz: '' };
             }
         }
     }
@@ -119,14 +124,25 @@ function parse_mp_articles_list(msgList, newAdd) {
 let wechatIo = io.of('/wechat'), resultIo = io.of('/result');
 wechatIo.on('connection', function (socket) {
 
-    socket.on('crawler', (crawData) => {
+    socket.on('crawler_msg', (crawData) => {
+
+        hlog.logger.debug("wechatIo.sockct_on_crawler_msg, crawData: " + JSON.stringify(crawData));
+
         crawData.crawTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
         let t = nextCrawlerTask(crawData.url);
         if (t) {
-            config_mp.url = crawData.url;
-            config_mp.index = crawData.index;
-            socket.emit('client_jump_url', { url: t.url, index = t.index });
+            hlog.logger.debug("wechatIo.sockct_on_crawler_msg2, crawData: " + JSON.stringify(t));
+
+            //  TBD, crawData.url 还是有问题的，应该用 preRequest 的 url
+            // config_mp.url = crawData.url.replace(crawData.biz, t.biz); // t.url;
+            
+            config_mp.index = t.index;
+            config_mp.biz = t.biz;
+            config_mp.oldBiz = t.oldBiz;
+            config_mp.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
+            hlog.logger.debug("wechatIo.sockct_on_crawler_msg3, url: " + config_mp.url);
+            socket.emit('client_jump_url', { url: t.url, index: t.index, biz: t.biz });
         }
     });
 });
@@ -141,7 +157,8 @@ var injectJsFile = fs.readFileSync('./profileInjectJs.js', 'utf-8').replace('{$I
 var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
 
 var fakeImg = fs.readFileSync('./fake.png');
-var fakeHtml = fs.readFileSync('./fake.html');
+var fakeHtml = fs.readFileSync('./fake.html').toString();
+hlog.logger.debug('fakeHtml: ' + fakeHtml); //  harry
 
 module.exports = {
 
@@ -159,17 +176,48 @@ module.exports = {
                 }
             };
         }
+
+        if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
+            requestDetail.requestOptions.method === 'GET') {
+
+            var newOption = Object.assign({}, requestDetail.requestOptions);
+
+            hlog.loggerBeforeReq.debug('url:' + requestDetail.url + ';headers: ' + JSON.stringify(newOption.headers));
+
+            if (config_mp.url === "") {
+                config_mp.url = requestDetail.url;
+            } else {
+                requestDetail.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
+            }
+
+            //if (requestDetail.requestOptions.headers['Referer'] &&
+            //    requestDetail.requestOptions.headers['Referer'].indexOf('/config_mp') !== -1) {
+
+                //  修改请求参数
+                
+                newOption.headers['Referer'] = requestDetail.url;
+
+                hlog.loggerBeforeReq.debug('headers2: ' + JSON.stringify(newOption.headers));
+
+                return {
+                    url: requestDetail.url,
+                    requestOptions: newOption
+                };
+            //}
+        }
     },
 
     *beforeSendResponse(requestDetail, responseDetail) {
 
         // 配置页面，起始页
-        if (requestDetail.url.indexOf('/config_mp') !== -1 && requestDetail.requestOptions.method === 'GET') {
+        if (requestDetail.url.indexOf('/config_mp') !== -1 &&
+            requestDetail.requestOptions.method === 'GET') {
 
             let h = JSON.stringify(requestDetail.requestOptions.headers);
             hlog.loggerBeforeRes.debug('config_mp_headers: ' + h);
 
-            if (requestDetail.requestOptions.headers && requestDetail.requestOptions.headers['User-Agent'].indexOf('MicroMessenger/') !== -1) {
+            if (requestDetail.requestOptions.headers &&
+                requestDetail.requestOptions.headers['User-Agent'].indexOf('MicroMessenger/') !== -1) {
                 //  来自微信手机客户端，开始抓取公众号。
 
                 const newResponse = responseDetail.response;
@@ -183,7 +231,9 @@ module.exports = {
         }
 
         // 历史文章列表
-        if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 && requestDetail.requestOptions.method === 'GET') {
+        if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
+            requestDetail.requestOptions.method === 'GET') {
+
             // console.log('get  profile_ext', responseDetail.response.header['Content-Type']);    //  text/html or application/json; charset=UTF-8
 
             let contentType = responseDetail.response.header['Content-Type'] || '';
@@ -193,13 +243,13 @@ module.exports = {
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
             
-            //hlog.loggerBeforeRes.debug('history_list begin responseDetail.response.body');
-            //hlog.loggerBeforeRes.debug(body);
-            //hlog.loggerBeforeRes.debug('history_list end responseDetail.response.body');
+            hlog.loggerBeforeRes.debug('history_list begin responseDetail.response.body');
+            hlog.loggerBeforeRes.debug(body);
+            hlog.loggerBeforeRes.debug('history_list end responseDetail.response.body');
 
             if (responseDetail.response.header['Content-Type'].indexOf('application/json') !== -1) {
 
-                let md5 = crypto.createHash('md5').update(body).digest("hex");
+                // let md5 = crypto.createHash('md5').update(body).digest("hex");
                 //  md5 更新 config_mp TBD
                 //  console.log(md5);
 
@@ -207,25 +257,34 @@ module.exports = {
 
                 let regList = /general_msg_list":"(.*)","next_offset/;
 
-                let list = regList.exec(body)[1];
+                let r = regList.exec(body);
+                //  maybe error, because body doesn't match regList
+                if (r && r.length > 0) {
+                    let list = r[1];
 
-                let reg = /\\"/g;
+                    let reg = /\\"/g;
 
-                let msgList = JSON.parse(list.replace(reg, '"'));
+                    let msgList = JSON.parse(list.replace(reg, '"'));
 
-                let newAdd = [];
-                parse_mp_articles_list(msgList, newAdd);
+                    let newAdd = [];
+                    parse_mp_articles_list(msgList, newAdd);
 
-                //  注入 js
-                newResponse.body = injectJquery(fakeHtml).replace(/<\/body>/g, injectJs + '</body>');
+                    hlog.loggerBeforeRes.debug('history_list_json,fakeHtml:' + fakeHtml);
+                    //  注入 js
+                    newResponse.body = injectJquery(fakeHtml).replace(/<\/body>/g, injectJs + '</body>');
 
-                //  resultIo.emit('newData', newData);  //  TBD
+                    hlog.loggerBeforeRes.debug('newResponse.body:' + newResponse.body);
 
-                hlog.loggerBeforeRes.debug('history_list get newAdd.length=' + newAdd.length);
+                    newResponse.header['Content-Type'] = 'text/html; charset=UTF-8';
 
-                hlog.loggerBeforeRes.debug('history_list get newAdd: ' + JSON.stringify(newAdd));
+                    //  resultIo.emit('newData', newData);  //  TBD
 
-                return { response: newResponse };
+                    hlog.loggerBeforeRes.debug('history_list get newAdd.length=' + newAdd.length);
+
+                    // hlog.loggerBeforeRes.debug('history_list get newAdd: ' + JSON.stringify(newAdd));
+
+                    return { response: newResponse };
+                }
             }
         } 
     },

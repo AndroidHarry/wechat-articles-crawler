@@ -68,3 +68,34 @@ articleInjectJs.js
 注: {$PORT}=9000
 
 
+请求成功时的
+url:
+header: {
+    "Host":"mp.weixin.qq.com",
+    "Connection":"keep-alive",
+    "x-wechat-uin":"MjQzNDE1MzIyMg%3D%3D",
+    "x-wechat-key":"b504e4e76fc12e4603abc0f4bb25e2625047212290153faa7b475f3745c7073a00551030df6d21657da4c44aacd2d015a4b3ffafda0ac4697824f8f2dd05b9706e8ff21170a8251f91974e3093be8c3d",
+    "Upgrade-Insecure-Requests":"1",
+    "User-Agent":"Mozilla/5.0 (Linux; Android 8.0.0; MI 5s Build/OPR1.170623.032; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 XWEB/882 MMWEBSDK/190301 Mobile Safari/537.36 MMWEBID/7695 MicroMessenger/7.0.4.1420(0x2700043C) Process/toolsmp NetType/WIFI Language/zh_CN",
+    "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/wxpic,image/apng,*/*;q=0.8",
+    "Accept-Encoding":"gzip, deflate",
+    "Accept-Language":"zh-CN,en-US;q=0.9",
+    "Cookie":"pgv_pvid=6634017053; rewardsn=; wxuin=2434153222; devicetype=android-26; version=2700043c; lang=zh_CN; wxtokenkey=777; sd_userid=88351565922299073; sd_cookie_crttime=1565922299073; pgv_info=ssid=s4630804996; pass_ticket=XbKv8l3zNCBCGycFjP/ZJywYhs+XI1O+yY2+IhQ2duA1QjqmL0FBuUI+fR6KVUs1; wap_sid2=CIb22IgJElxBOTluZzdSZWI4dW9xVWxIWG1UUnlXNmFVMUoxdmU0aTQzdHNORDZpa0N4b1NhMmlMNWdlNkk3d3l3bUNGSjJBWXlMa25SNUhiQWJEUXVJd0s4SmJ1ZjhEQUFBfjD/7fTqBTgNQAE=",
+    "X-Requested-With":"com.tencent.mm",
+    "Referer":"https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MjAxNDM4MA==&f=json&offset=0&count=20&is_ok=1&scene=126&devicetype=android-26&version=2700043c&lang=zh_CN&nettype=WIFI&a8scene=1&pass_ticket=0YylKhn996NSj3yehGSzLqbO55BFf%2FoGloo728bmeFswMdZN2DH5nVvmCyGENHD3&wx_header=1"
+}
+
+请求失败时的
+url:
+header: {
+    "Host":"mp.weixin.qq.com",
+    "Connection":"keep-alive",
+    "Upgrade-Insecure-Requests":"1",
+    "User-Agent":"Mozilla/5.0 (Linux; Android 8.0.0; MI 5s Build/OPR1.170623.032; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 XWEB/882 MMWEBSDK/190301 Mobile Safari/537.36 MMWEBID/7695 MicroMessenger/7.0.4.1420(0x2700043C) Process/toolsmp NetType/WIFI Language/zh_CN",
+    "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/wxpic,image/apng,*/*;q=0.8",
+    "Referer":"https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126",
+    "Accept-Encoding":"gzip, deflate",
+    "Accept-Language":"zh-CN,en-US;q=0.9",
+    "Cookie":"pgv_pvid=6634017053; rewardsn=; wxuin=2434153222; devicetype=android-26; version=2700043c; lang=zh_CN; wxtokenkey=777; sd_userid=88351565922299073; sd_cookie_crttime=1565922299073; pgv_info=ssid=s4630804996; pass_ticket=XbKv8l3zNCBCGycFjP/ZJywYhs+XI1O+yY2+IhQ2duA1QjqmL0FBuUI+fR6KVUs1; wap_sid2=CIb22IgJElxBOTluZzdSZWI4dW9xVWxIWG1UUnlXNmFVMUoxdmU0aTQzdHNORDZpa0N4b1NhMmlMNWdlNkk3d3l3bUNGSjJBWXlMa25SNUhiQWJEUXVJd0s4SmJ1ZjhEQUFBfjD/7fTqBTgNQAE=",
+    "X-Requested-With":"com.tencent.mm"
+}
