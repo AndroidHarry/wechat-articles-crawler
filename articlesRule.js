@@ -157,8 +157,8 @@ hlog.logger.debug('ip: ' + ip); //  harry
 var injectJsFile = fs.readFileSync('./profileInjectJs.js', 'utf-8').replace('{$IP}', ip);
 
 //  20190826
-var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126"; }, 2000);';
-// var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124"; }, 2000);';
+// var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126"; }, 2000);';
+var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124"; }, 2000);';
 
 //var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
 var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}${hnexturl}</script>`;
@@ -260,7 +260,7 @@ module.exports = {
             hlog.loggerBeforeRes.debug(body);
             hlog.loggerBeforeRes.debug('history_list end responseDetail.response.body');
 
-            if (responseDetail.response.header['Content-Type'].indexOf('application/json') !== -1) {
+            // if (responseDetail.response.header['Content-Type'].indexOf('application/json') !== -1) {
 
                 // let md5 = crypto.createHash('md5').update(body).digest("hex");
                 //  md5 更新 config_mp TBD
@@ -268,37 +268,38 @@ module.exports = {
 
                 hlog.loggerBeforeRes.debug('history_list_json');
 
-                let regList = /general_msg_list":"(.*)","next_offset/;
+                //let regList = /general_msg_list":"(.*)","next_offset/;
 
-                let r = regList.exec(body);
+                //let r = regList.exec(body);
                 //  maybe error, because body doesn't match regList
-                if (r && r.length > 0) {
-                    let list = r[1];
+                //if (r && r.length > 0) {
+                    //let list = r[1];
 
-                    let reg = /\\"/g;
+                    //let reg = /\\"/g;
 
-                    let msgList = JSON.parse(list.replace(reg, '"'));
+                    //let msgList = JSON.parse(list.replace(reg, '"'));
 
-                    let newAdd = [];
-                    parse_mp_articles_list(msgList, newAdd);
+                    //let newAdd = [];
+                    //parse_mp_articles_list(msgList, newAdd);
 
-                    hlog.loggerBeforeRes.debug('history_list_json,fakeHtml:' + fakeHtml);
-                    //  注入 js
-                    newResponse.body = injectJquery(fakeHtml).replace(/<\/body>/g, injectJs + '</body>');
+                    //hlog.loggerBeforeRes.debug('history_list_json,fakeHtml:' + fakeHtml);
+                //}
 
-                    hlog.loggerBeforeRes.debug('newResponse.body:' + newResponse.body);
+                //  注入 js
+                newResponse.body = injectJquery(fakeHtml).replace(/<\/body>/g, injectJs + '</body>');
 
-                    newResponse.header['Content-Type'] = 'text/html; charset=UTF-8';
+                hlog.loggerBeforeRes.debug('newResponse.body:' + newResponse.body);
 
-                    //  resultIo.emit('newData', newData);  //  TBD
+                newResponse.header['Content-Type'] = 'text/html; charset=UTF-8';
 
-                    hlog.loggerBeforeRes.debug('history_list get newAdd.length=' + newAdd.length);
+                //  resultIo.emit('newData', newData);  //  TBD
 
-                    // hlog.loggerBeforeRes.debug('history_list get newAdd: ' + JSON.stringify(newAdd));
+                // hlog.loggerBeforeRes.debug('history_list get newAdd.length=' + newAdd.length);
 
-                    return { response: newResponse };
-                }
-            }
+                // hlog.loggerBeforeRes.debug('history_list get newAdd: ' + JSON.stringify(newAdd));
+
+                return { response: newResponse };
+            //}
         } 
     },
 
