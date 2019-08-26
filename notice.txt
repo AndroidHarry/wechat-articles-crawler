@@ -1,4 +1,9 @@
 
+https://github.com/avwo/whistle
+https://zhuanlan.zhihu.com/p/24650656
+https://www.chenwenguan.com/wechat-browse-automation/
+https://gitee.com/zsyoung01/AnyProxy
+
 /wechat (namespace)
 	crawler (msg)
 		client (articleInjectJs.js) -> server, 
