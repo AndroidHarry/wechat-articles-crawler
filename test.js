@@ -16,3 +16,8 @@ let body = injectJquery(fakeHtml.toString()).replace(/<\/body>/g, injectJs + '</
 
 hlog.logger.debug(body);
 
+if (/qq.com/i.test('https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MjAxNDM4MA==&scene=124')) {
+    hlog.logger.debug('qq test ok');
+} else {
+    hlog.logger.debug('qq test fail');
+}

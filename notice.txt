@@ -1,6 +1,9 @@
 
 https://github.com/avwo/whistle
+
 https://zhuanlan.zhihu.com/p/24650656
+提高微信公众号文章采集效率，anyproxy进阶使用方法
+
 https://www.chenwenguan.com/wechat-browse-automation/
 https://gitee.com/zsyoung01/AnyProxy
 
@@ -104,3 +107,22 @@ header: {
     "Cookie":"pgv_pvid=6634017053; rewardsn=; wxuin=2434153222; devicetype=android-26; version=2700043c; lang=zh_CN; wxtokenkey=777; sd_userid=88351565922299073; sd_cookie_crttime=1565922299073; pgv_info=ssid=s4630804996; pass_ticket=XbKv8l3zNCBCGycFjP/ZJywYhs+XI1O+yY2+IhQ2duA1QjqmL0FBuUI+fR6KVUs1; wap_sid2=CIb22IgJElxBOTluZzdSZWI4dW9xVWxIWG1UUnlXNmFVMUoxdmU0aTQzdHNORDZpa0N4b1NhMmlMNWdlNkk3d3l3bUNGSjJBWXlMa25SNUhiQWJEUXVJd0s4SmJ1ZjhEQUFBfjD/7fTqBTgNQAE=",
     "X-Requested-With":"com.tencent.mm"
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+安卓模拟器经常会访问一些http://google.com的地址，这样会导致anyproxy死机，找到函数replaceRequestOption : function(req,option)，修改函数内容：
+
+replaceRequestOption : function(req,option){
+        var newOption = option;
+        if(/google/i.test(newOption.headers.host)){
+            newOption.hostname = "www.baidu.com";
+            newOption.port     = "80";
+        }
+        return newOption;
+    },
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+这两段程序的意义是：从队列表中读取出下一个采集内容的信息，如果是历史消息页，则将biz拼接到地址中（注意：评论区有朋友以为key和pass_ticket也要拼接，实则不需要），通过js的方式输出到页面，如果下一条是文章，则将历史消息列表json中的文章地址直接输出为js。同样文章内容的地址中不包含uin和key这样的参数，这些参数都是由客户端自动补充的。

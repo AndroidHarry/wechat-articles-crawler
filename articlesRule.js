@@ -126,24 +126,25 @@ wechatIo.on('connection', function (socket) {
 
     socket.on('crawler_msg', (crawData) => {
 
+        //  20190826
         hlog.logger.debug("wechatIo.sockct_on_crawler_msg, crawData: " + JSON.stringify(crawData));
 
         crawData.crawTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
-        let t = nextCrawlerTask(crawData.url);
-        if (t) {
-            hlog.logger.debug("wechatIo.sockct_on_crawler_msg2, crawData: " + JSON.stringify(t));
+        //let t = nextCrawlerTask(crawData.url);
+        //if (t) {
+        //    hlog.logger.debug("wechatIo.sockct_on_crawler_msg2, crawData: " + JSON.stringify(t));
 
-            //  TBD, crawData.url 还是有问题的，应该用 preRequest 的 url
-            // config_mp.url = crawData.url.replace(crawData.biz, t.biz); // t.url;
+        //    //  TBD, crawData.url 还是有问题的，应该用 preRequest 的 url
+        //    // config_mp.url = crawData.url.replace(crawData.biz, t.biz); // t.url;
             
-            config_mp.index = t.index;
-            config_mp.biz = t.biz;
-            config_mp.oldBiz = t.oldBiz;
-            config_mp.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
-            hlog.logger.debug("wechatIo.sockct_on_crawler_msg3, url: " + config_mp.url);
-            socket.emit('client_jump_url', { url: t.url, index: t.index, biz: t.biz });
-        }
+        //    //config_mp.index = t.index;
+        //    //config_mp.biz = t.biz;
+        //    //config_mp.oldBiz = t.oldBiz;
+        //    //config_mp.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
+        //    //hlog.logger.debug("wechatIo.sockct_on_crawler_msg3, url: " + config_mp.url);
+        //    //socket.emit('client_jump_url', { url: t.url, index: t.index, biz: t.biz });
+        //}
     });
 });
 
@@ -154,11 +155,17 @@ function injectJquery(body) {
 
 hlog.logger.debug('ip: ' + ip); //  harry
 var injectJsFile = fs.readFileSync('./profileInjectJs.js', 'utf-8').replace('{$IP}', ip);
-var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
+
+//  20190826
+var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126"; }, 2000);';
+// var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124"; }, 2000);';
+
+//var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
+var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}${hnexturl}</script>`;
 
 var fakeImg = fs.readFileSync('./fake.png');
 var fakeHtml = fs.readFileSync('./fake.html').toString();
-hlog.logger.debug('fakeHtml: ' + fakeHtml); //  harry
+// hlog.logger.debug('fakeHtml: ' + fakeHtml); //  harry
 
 module.exports = {
 
@@ -177,58 +184,63 @@ module.exports = {
             };
         }
 
-        if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
+        var newOption = Object.assign({}, requestDetail.requestOptions);
+
+        if (/qq.com/i.test(requestDetail.url) &&
             requestDetail.requestOptions.method === 'GET') {
 
-            var newOption = Object.assign({}, requestDetail.requestOptions);
-
+            //  打印微信相关请求的信息
             hlog.loggerBeforeReq.debug('url:' + requestDetail.url + ';headers: ' + JSON.stringify(newOption.headers));
-
-            if (config_mp.url === "") {
-                config_mp.url = requestDetail.url;
-            } else {
-                requestDetail.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
-            }
-
-            //if (requestDetail.requestOptions.headers['Referer'] &&
-            //    requestDetail.requestOptions.headers['Referer'].indexOf('/config_mp') !== -1) {
-
-                //  修改请求参数
-                
-                newOption.headers['Referer'] = requestDetail.url;
-
-                hlog.loggerBeforeReq.debug('headers2: ' + JSON.stringify(newOption.headers));
-
-                return {
-                    url: requestDetail.url,
-                    requestOptions: newOption
-                };
-            //}
         }
+
+        //if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
+        //    requestDetail.requestOptions.method === 'GET') {
+
+        //    if (config_mp.url === "") {
+        //        config_mp.url = requestDetail.url;
+        //    } else {
+        //        requestDetail.url = config_mp.url.replace(config_mp.oldBiz, config_mp.biz);
+        //    }
+
+        //    //if (requestDetail.requestOptions.headers['Referer'] &&
+        //    //    requestDetail.requestOptions.headers['Referer'].indexOf('/config_mp') !== -1) {
+
+        //        //  修改请求参数
+                
+        //        newOption.headers['Referer'] = requestDetail.url;
+
+        //        hlog.loggerBeforeReq.debug('headers2: ' + JSON.stringify(newOption.headers));
+
+        //        return {
+        //            url: requestDetail.url,
+        //            requestOptions: newOption
+        //        };
+        //    //}
+        //}
     },
 
     *beforeSendResponse(requestDetail, responseDetail) {
 
         // 配置页面，起始页
-        if (requestDetail.url.indexOf('/config_mp') !== -1 &&
-            requestDetail.requestOptions.method === 'GET') {
+        //if (requestDetail.url.indexOf('/config_mp') !== -1 &&
+        //    requestDetail.requestOptions.method === 'GET') {
 
-            let h = JSON.stringify(requestDetail.requestOptions.headers);
-            hlog.loggerBeforeRes.debug('config_mp_headers: ' + h);
+        //    let h = JSON.stringify(requestDetail.requestOptions.headers);
+        //    hlog.loggerBeforeRes.debug('config_mp_headers: ' + h);
 
-            if (requestDetail.requestOptions.headers &&
-                requestDetail.requestOptions.headers['User-Agent'].indexOf('MicroMessenger/') !== -1) {
-                //  来自微信手机客户端，开始抓取公众号。
+        //    if (requestDetail.requestOptions.headers &&
+        //        requestDetail.requestOptions.headers['User-Agent'].indexOf('MicroMessenger/') !== -1) {
+        //        //  来自微信手机客户端，开始抓取公众号。
 
-                const newResponse = responseDetail.response;
-                let body = responseDetail.response.body.toString();
+        //        const newResponse = responseDetail.response;
+        //        let body = responseDetail.response.body.toString();
 
-                //  注入 js
-                newResponse.body = injectJquery(body).replace(/<\/body>/g, injectJs + '</body>');
+        //        //  注入 js
+        //        newResponse.body = injectJquery(body).replace(/<\/body>/g, injectJs + '</body>');
 
-                return { response: newResponse };
-            }
-        }
+        //        return { response: newResponse };
+        //    }
+        //}
 
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
@@ -242,7 +254,8 @@ module.exports = {
 
             const newResponse = responseDetail.response;
             let body = responseDetail.response.body.toString();
-            
+
+            //  20190826
             hlog.loggerBeforeRes.debug('history_list begin responseDetail.response.body');
             hlog.loggerBeforeRes.debug(body);
             hlog.loggerBeforeRes.debug('history_list end responseDetail.response.body');
