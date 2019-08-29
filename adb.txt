@@ -1,0 +1,21 @@
+
+adb 工具
+https://jingyan.baidu.com/article/ce4366494962083773afd3d0.html
+
+常用的adb命令
+  查看已连接的设备(adb devices)
+  
+  推送文件到设备(adb push 电脑文件路径 手机目标路径)‘push’——‘推’
+  adb push c:\a.txt /sdcard/
+  
+  拉取文件到电脑(adb pull 手机文件路径 电脑目标路径)‘pull’——‘拉取’
+  adb pull /sdcard/a.txt c:\
+  
+  截屏
+  adb shell screencap /sdcard/a.png
+  
+  
+adb shell
+如果需要安装apk文件，可以直接使用
+adb install -r +apk所在路径, 
+eg, adb install -r c:\1.apk

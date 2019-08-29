@@ -242,6 +242,15 @@ module.exports = {
         //    }
         //}
 
+        if (responseDetail.response.statusCode == 302) {
+            //  https://mp.weixin.qq.com/s?src=11&timestamp=1567069076&ver=1819&signature=hCS3l7UTLiCImn9cr-QGg1oxVwFtZjK*pE*6wFSf*5h724pR8x8uloCwzXcH07A5vwzWi0csEV6O4BgCQPj02jMAFheb2mzvtloSjpCY4b7lxayc0WmR-kVyfWLsUY2u&new=1
+            //  302 后
+            //  /s?__biz=MjM5MDIwNDEyMg==&mid=2650646310&idx=4&sn=31eee7e7c5225f770fe67babd72757fd&scene=0&key=6e9a44b68383d76388dd1836fb0846fc1a84a1b21aefb08a2ef71876cb98b908bb6fbf90363acb930fc1037d460194710d52702417821644eea55e463d6f1821b9f369a5a48ec0d31502ab358b51f9cf&ascene=1&uin=MTU3MzQyMzQyMg%3D%3D&devicetype=Windows+7&version=62060833&lang=zh_CN&pass_ticket=RQrkrncZomnEUfJ5NWkmMC8Y0O%2Blxy49j0xUDlhNWgsmHyM9i4ylyEPWoRuKpwCl&winzoom=1
+            //  https://mp.weixin.qq.com/s/3vosXcJ-vOQRh9sDvQXAdg
+            //  打印微信相关请求的信息
+            hlog.loggerBeforeRes.debug('302-res,url:' + requestDetail.url + ';header: ' + JSON.stringify(responseDetail.response.header));
+        }
+
         // 历史文章列表
         if (requestDetail.url.indexOf('mp.weixin.qq.com/mp/profile_ext?') !== -1 &&
             requestDetail.requestOptions.method === 'GET') {
