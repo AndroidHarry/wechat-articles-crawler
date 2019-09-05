@@ -47,8 +47,8 @@ articleInjectJs.js
 
 
 经调试发现，公众号的全部文章列表可以是固定的网页链接，可以直接在微信浏览器里打开，如 
-人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MjAxNDM4MA==&scene=124
-上海证券报: https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124
+人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MjAxNDM4MA==&scene=124#wechat_redirect
+上海证券报: https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124#wechat_redirect
 ------------------
 对应的 json 格式如下
 人民日报:   https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MjAxNDM4MA==&f=json&offset=0&count=20&is_ok=1&scene=126
@@ -126,3 +126,21 @@ replaceRequestOption : function(req,option){
 
 
 这两段程序的意义是：从队列表中读取出下一个采集内容的信息，如果是历史消息页，则将biz拼接到地址中（注意：评论区有朋友以为key和pass_ticket也要拼接，实则不需要），通过js的方式输出到页面，如果下一条是文章，则将历史消息列表json中的文章地址直接输出为js。同样文章内容的地址中不包含uin和key这样的参数，这些参数都是由客户端自动补充的。
+
+
+
+cheat engine 教程
+https://blog.csdn.net/j864458340/article/details/78435171
+
+
+==========================================================================
+
+OllyDBG
+----------
+OllyDBG 入门系列（四）－内存断点
+https://bbs.pediy.com/thread-21378.htm
+
+OllyDBG完美教程(超强入门级)
+https://blog.csdn.net/imjaron/article/details/79684815
+
+==========================================================================

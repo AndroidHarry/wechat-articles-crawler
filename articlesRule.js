@@ -158,7 +158,7 @@ var injectJsFile = fs.readFileSync('./profileInjectJs.js', 'utf-8').replace('{$I
 
 //  20190826
 // var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5MDIwNDEyMg==&f=json&offset=0&count=20&is_ok=1&scene=126"; }, 2000);';
-var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124"; }, 2000);';
+var hnexturl = 'setTimeout(function () { window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MDIwNDEyMg==&scene=124#wechat_redirect"; }, 2000);';
 
 //var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}</script>`;
 var injectJs = `<script id="injectJs" type="text/javascript">${injectJsFile}${hnexturl}</script>`;
